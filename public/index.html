@@ -12,13 +12,13 @@
 
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
-        <link rel="stylesheet" href="css/normalize.css">
-        <link rel="stylesheet" href="css/main.css">
-        <script src="js/vendor/modernizr-2.6.2.min.js"></script>
-
         <!-- bootstrap -->
         <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
         <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/main.css">
+        <script src="js/vendor/modernizr-2.6.2.min.js"></script>
     </head>
     <body>
         <!--[if lt IE 7]>
@@ -29,6 +29,7 @@
 
 
         <!-- Add your site or application content here -->
+
         <nav class="navbar navbar-inverse navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
@@ -47,6 +48,74 @@
             <div class="main">
                 <h1>Time Logger</h1>
                 <p class="lead">Handy utility for tracking time</p>
+                <script type="text/x-handlebars" data-template-name="timelogger">
+                    <div class="container-fluid">
+                        <section id="timeloggerapp">
+
+                            <div class="row">
+                                <div class="col-xs-4 col-sm-4 col-sm-offset-2 col-md-2 col-md-offset-6 form-group">
+                                    <label for="new-date">Date</label>
+                                    {{input
+                                    type="date"
+                                    id="new-date"
+                                    classNames="form-control"
+                                    value=newDate
+                                    placeholder="Date"}}
+                                </div>
+                                <div class="col-xs-6 col-sm-4 col-md-2 form-group">
+                                    <label for="new-project">Project</label>
+                                    {{view 'select'
+                                    classNames="form-control"
+                                    id="new-project"
+                                    value=newProject
+                                    content=model.projects
+                                    optionValuePath="content.id"
+                                    optionLabelPath="content.name"}}
+                                </div>
+                            </div>
+                            <div class="row">
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-6 col-md-6 form-group">
+                                    {{input
+                                    type="text"
+                                    id="new-note"
+                                    classNames="form-control"
+                                    value=newNote
+                                    placeholder="what did you do?"}}
+                                </div>
+                                <div class="col-xs-8 col-sm-2 col-md-2 form-group">
+                                    {{input
+                                    type="time"
+                                    id="new-begin"
+                                    classNames="form-control"
+                                    value=newBegin
+                                    placeholder="start time" }}
+                                </div>
+                                <div class="col-xs-8 col-sm-2 col-md-2 form-group">
+                                    {{input
+                                    type="time"
+                                    id="new-end"
+                                    classNames="form-control"
+                                    value=newEnd
+                                    placeholder="end time"}}
+                                </div>
+                                <div class="col-xs-4 col-sm-2 col-md-2 ">
+                                    <button class="btn btn-primary add-btn" {{action 'createRecord'}} >Add</button>
+                                </div>
+                            </div>
+
+                            <h3>Records</h3>
+                            <ul id="records-list">
+                                {{#each record in model.records}}
+                                <li>
+                                    <label>{{record.notes}} {{record.begin}}-{{record.end}}</label>
+                                </li>
+                                {{/each}}
+                            </ul>
+                        </section>
+                    </div>
+                </script>
             </div>
         </div>
 
@@ -57,6 +126,10 @@
 
         <!-- bootstrap -->
         <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+
+        <script src="js/vendor/handlebars-v1.3.0.js"></script>
+        <script src="js/vendor/ember.js"></script>
+        <script src="js/vendor/ember-data.js"></script>
 
         <script src="js/plugins.js"></script>
         <script src="js/main.js"></script>

@@ -97,24 +97,28 @@ textarea {
    Author's custom styles
    ========================================================================== */
 
-.main {
-    margin-top: 5em;
+input[type=time],
+input[type=date],
+input[type=datetime],
+input[type=datetime-local],
+input[type=month], input {
+    line-height: 1.4em;
+    padding: 6px 12px;
 }
 
+input[type=time] {
+    max-width: 10em;
+    min-width: 8em;
+}
 
+select {
+    padding: 8px 12px;
+    margin: 2px 0 10px 0;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+.main {
+    margin-top: 6em;
+}
 
 /* ==========================================================================
    Helper classes
@@ -228,9 +232,9 @@ textarea {
 }
 
 @media print,
-       (-o-min-device-pixel-ratio: 5/4),
-       (-webkit-min-device-pixel-ratio: 1.25),
-       (min-resolution: 120dpi) {
+(-o-min-device-pixel-ratio: 5/4),
+(-webkit-min-device-pixel-ratio: 1.25),
+(min-resolution: 120dpi) {
     /* Style adjustments for high resolution devices */
 }
 
@@ -263,7 +267,6 @@ textarea {
     /*
      * Don't show links for images, or javascript/internal links
      */
-
     .ir a:after,
     a[href^="javascript:"]:after,
     a[href^="#"]:after {
