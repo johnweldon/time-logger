@@ -1,24 +1,52 @@
 var debug = true;
+var moment = moment || function () {
+        debugLog('moment.js not included');
+    };
 
 window.TimeLogger = Ember.Application.create({
-    /*
-     LOG_ACTIVE_GENERATION: true,
-     LOG_RESOLVER: true
-     */
+    LOG_ACTIVE_GENERATION: false,
+    LOG_RESOLVER: false,
+    LOG_TRANSITIONS: true
 });
 
 TimeLogger.ApplicationAdapter = DS.FixtureAdapter.extend();
 
 TimeLogger.Router.map(function () {
-    this.resource('timelogger', {path: '/'});
+    this.resource('timelogger', {path: '/'}, function () {
+        this.route('today');
+    });
 });
 
 TimeLogger.TimeloggerRoute = Ember.Route.extend({
     model: function () {
+        var draft = this.store.createRecord('timerecord');
+        draft.set('isEditing',true);
+        draft.set('isDraft',true);
         return {
-            records: this.store.find('record'),
+            draft: draft,
+            records: this.store.find('timerecord'),
             projects: this.store.find('project')
         };
+    }
+});
+
+TimeLogger.TimeloggerIndexRoute = Ember.Route.extend({
+    model: function () {
+        return this.modelFor('timelogger');
+    }
+});
+
+TimeLogger.TimeloggerTodayRoute = Ember.Route.extend({
+    model: function () {
+        return {
+            records: this.store.filter('timerecord', function (rec) {
+                return new Date(rec.get('date').split('-')).toDateString() === new Date().toDateString()
+            }),
+            projects: this.store.find('project')
+        }
+    },
+    renderTemplate: function (controller) {
+        this.render('timelogger/index', {controller: controller});
     }
 });
 
@@ -28,59 +56,27 @@ var debugLog = function () {
     }
 };
 
-/**
- * @return {boolean}
- */
-TimeLogger.TimeCompare = function (begin, end, increment) {
-    var granularity = increment || 15;
-    if (!begin || !end) {
-        debugLog("FAIL: missing time");
-        return false;
-    }
-    var lhs = begin.split(':');
-    var rhs = end.split(':');
-    if (lhs.length != rhs.length && lhs.length != 2) {
-        debugLog("FAIL: malformed time");
-        return false;
-    }
-    var
-        beginHour = parseInt(lhs[0], 10),
-        beginMin = parseInt(lhs[1], 10),
-        endHour = parseInt(rhs[0], 10),
-        endMin = parseInt(rhs[1], 10);
-
-    if (beginMin % granularity != 0 || endMin % granularity != 0) {
-        debugLog("FAIL: time must be in increment of " + granularity + " minutes");
-        return false;
-    }
-    if (beginHour > endHour) {
-        debugLog("FAIL: begin is after end")
-        return false;
-    }
-    if (beginHour == endHour && beginMin >= endMin) {
-        debugLog("FAIL: begin is after end")
-        return false;
-    }
-
-    return true;
-};
-
+//noinspection JSUnusedGlobalSymbols
 TimeLogger.TimeloggerController = Ember.ObjectController.extend({
     actions: {
-        createRecord: function () {
+        createTimeRecord: function () {
+            var model = this.get('model');
+            var draft = model.draft;
+            debugLog(draft);
             var date = this.get('newDate');
             var project = this.get('newProject') || '';
             var begin = this.get('newBegin');
             var end = this.get('newEnd');
             var notes = this.get('newNotes');
 
-            debugLog(date, begin, end);
+            debugLog(date, begin, end, project, notes);
 
-            if (!notes || !notes.trim() || !TimeLogger.TimeCompare(begin, end)) {
+            var timeFmt = 'HH:mm';
+            if (!notes || !notes.trim() || !moment(end, timeFmt).isAfter(moment(begin, timeFmt))) {
                 return;
             }
 
-            var record = this.store.createRecord('record', {
+            var rec = this.store.createRecord('timerecord', {
                 notes: notes,
                 begin: begin,
                 end: end,
@@ -88,37 +84,62 @@ TimeLogger.TimeloggerController = Ember.ObjectController.extend({
                 date: date
             });
 
-            this.set('newBegin', newitem.end);
-            this.set('newEnd', newitem.end);
-            record.save();
+            this.set('newBegin', end);
+            this.set('newEnd', end);
+            rec.save();
         }
     },
     newDate: new Date()
 });
 
-TimeLogger.RecordController = Ember.ObjectController.extend({
+//noinspection JSUnusedGlobalSymbols
+TimeLogger.TimerecordController = Ember.ObjectController.extend({
     actions: {
-        editRecord: function () {
+        editTimeRecord: function () {
             this.set('isEditing', true);
         },
-        saveRecord: function () {
+        saveTimeRecord: function () {
             this.set('isEditing', false);
+            this.get('model').save();
         },
-        cancelUpdate: function(){
+        cancelTimeRecord: function () {
+            var r = this.get('model');
+            r.deleteRecord();
+            r.save();
+        },
+        cancelUpdate: function () {
             this.set('isEditing', false);
         }
     },
     isEditing: false
 });
 
-TimeLogger.Record = DS.Model.extend({
-    name: DS.attr('string'),
-    begin: DS.attr('string'),
-    end: DS.attr('string'),
+TimeLogger.currentTimeRounded = function (granularity) {
+    var g = granularity || 15;
+    var now = moment();
+    var minute = now.minute();
+    now.set('minute', minute - (minute % g));
+    return now.format('HH:mm');
+};
+
+TimeLogger.Timerecord = DS.Model.extend({
+    begin: DS.attr('string', {defaultValue: TimeLogger.currentTimeRounded()}),
+    end: DS.attr('string', {defaultValue: TimeLogger.currentTimeRounded()}),
     notes: DS.attr('string'),
     project: DS.attr('string'),
-    date: DS.attr('string')
+    date: DS.attr('string', {
+        defaultValue: function () {
+            return moment().format('YYYY-MM-DD')
+        }
+    })
 });
+
+TimeLogger.TimerecordView = Ember.View.extend({
+    templateName: 'timerecord',
+    model: new TimeLogger.Timerecord(),
+    projects: []
+});
+
 
 TimeLogger.Project = DS.Model.extend({
     name: DS.attr('string')
@@ -128,7 +149,7 @@ TimeLogger.Tag = DS.Model.extend({
     name: DS.attr('string')
 });
 
-TimeLogger.Record.FIXTURES = [
+TimeLogger.Timerecord.FIXTURES = [
     {
         id: 1,
         name: 'one',
@@ -165,3 +186,20 @@ TimeLogger.Tag.FIXTURES = [
     {id: 1, name: 'meeting'},
     {id: 2, name: 'coding'}
 ];
+
+$('body').on('keydown', 'input, select', function (e) {
+    var focusable, next;
+    if (e.keyCode == 13) {
+        focusable = $('#timeloggerapp').find('input,a,select,button,textarea').filter(':visible');
+        next = focusable.eq(focusable.index(this) + 1);
+        if (next.length) {
+            next.focus();
+        }
+        return false;
+    }
+});
+
+$(function () {
+    $('#new-date').val(moment().format('YYYY-MM-DD'));
+    $('#new-note').focus();
+});

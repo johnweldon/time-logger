@@ -97,6 +97,12 @@ textarea {
    Author's custom styles
    ========================================================================== */
 
+.navbar-brand {
+    padding-left: 64px;
+    background: url("../apple-touch-icon-precomposed.png") no-repeat;
+    background-size: contain;
+}
+
 input[type=time],
 input[type=date],
 input[type=datetime],
@@ -110,6 +116,7 @@ input[type=date] {
     max-width: 12em;
     min-width: 11em;
 }
+
 input[type=time] {
     max-width: 10em;
     min-width: 8em;
@@ -126,6 +133,11 @@ select {
     top: 1px;
 }
 
+.new-record {
+    margin: 0 0 5em 0;
+    padding: 0 0 0 10px;
+}
+
 ul#records-list {
     padding: 0 0 0 10px;
 }
@@ -134,8 +146,18 @@ ul#records-list li {
     list-style: none;
 }
 
+#records-list li .destroy {
+    display: none;
+    margin: auto 0;
+    color: #a88a8a;
+}
+
+#records-list li:hover .destroy {
+    display: inline;
+}
+
 .main {
-    margin-top: 6em;
+    margin-top: 8em;
 }
 
 .label-notes,
@@ -148,9 +170,20 @@ ul#records-list li {
 }
 
 .label-notes {
-    min-width: 15em;
+    min-width: 22em;
 }
 
+.label-date {
+    min-width: 10em;
+}
+
+.label-project {
+    min-width: 8em;
+}
+
+.note-field {
+    min-width: 22em;
+}
 /* ==========================================================================
    Helper classes
    ========================================================================== */

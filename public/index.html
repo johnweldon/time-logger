@@ -30,66 +30,33 @@
 
         <!-- Add your site or application content here -->
 
-        <nav class="navbar navbar-inverse navbar-fixed-top">
+        <script type="text/x-handlebars" data-template-name="timelogger">
+            <nav class="navbar navbar-inverse navbar-fixed-top">
+                <div class="container">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="#">Time Logger</a>
+                    </div>
+                    <div id="navbar" class="collapse navbar-collapse">
+                        <ul class="nav navbar-nav">
+                            <li>{{#link-to "timelogger" activeClass="selected"}}Home{{/link-to}}</li>
+                            <li>{{#link-to "timelogger.today" activeClass="selected"}}Today{{/link-to}}</li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
             <div class="container">
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="#">Time Logger</a>
-                </div>
-                <div id="navbar" class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav">
-                        <li class="active"><a href="#">Home</a></li>
-                        <li><a href="#today">Today</a></li>
-                        <li><a href="#thisweek">This Week</a></li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-        <div class="container">
-            <div class="main">
-                <h1>Time Logger</h1>
-                <p class="lead">Handy utility for tracking time</p>
-                <script type="text/x-handlebars" data-template-name="timelogger">
+                <div class="main">
                     <div class="container">
                         <section id="timeloggerapp">
-
-                            <div class="form-inline">
-                                {{input type="date" id="new-date" classNames="form-control" value=newDate placeholder="Date"}}
-                                {{view 'select' classNames="form-control" id="new-project" value=newProject content=model.projects optionValuePath="content.name" optionLabelPath="content.name"}}
-                                {{input type="text" id="new-note" classNames="form-control" value=newNotes placeholder="what did you do?"}}
-                                {{input type="time" id="new-begin" classNames="form-control" value=newBegin placeholder="start time" }}
-                                {{input type="time" id="new-end" classNames="form-control" value=newEnd placeholder="end time"}}
-                                <button class="btn btn-primary add-btn" {{action 'createRecord'}} >Add</button>
+                            <div class="new-record form-inline">
+                                {{view 'timerecord'  projects=model.projects}}
                             </div>
-
-                            <ul id="records-list">
-                                {{#each record in model.records itemController="record"}}
-                                <li {{bind-attr class="record.isEditing:editing" }}>
-                                    {{#if record.isEditing}}
-                                    <span class="form-inline">
-                                    {{input type="text" id="edit-note" classNames="form-control" value=record.notes placeholder="what did you do?"}}
-                                    {{input type="time" id="edit-begin" classNames="form-control" value=record.begin placeholder="start time" }}
-                                    {{input type="time" id="edit-end" classNames="form-control" value=record.end placeholder="end time"}}
-                                    {{input type="date" id="edit-date" classNames="form-control" value=record.date placeholder="Date"}}
-                                    {{view 'select' id="edit-project" classNames="form-control" value=record.project content=model.projects optionValuePath="content.name" optionLabelPath="content.name"}}
-                                    <button class="btn btn-primary add-btn" {{action 'saveRecord'}} >Update</button>
-                                        <span class="cancel" {{action 'cancelUpdate'}}>cancel</span>
-                                    </span>
-                                    {{else}}
-                                    <span {{action "editRecord" on="doubleClick"}}>
-                                        <span class="label-notes">{{record.notes}}</span>
-                                        <span class="label-times">{{record.begin}}-{{record.end}}</span>
-                                        <span class="label-date">{{record.date}}</span>
-                                        <span class="label-project">[{{record.project}}]</span>
-                                    </span>
-                                    {{/if}}
-                                </li>
-                                {{/each}}
-                            </ul>
+                            {{outlet}}
                         </section>
                     </div>
-                </script>
+                </div>
             </div>
-        </div>
+        </script>
 
 
 
@@ -102,6 +69,7 @@
         <script src="js/vendor/handlebars-v1.3.0.js"></script>
         <script src="js/vendor/ember.js"></script>
         <script src="js/vendor/ember-data.js"></script>
+        <script src="js/vendor/moment.min.js"></script>
 
         <script src="js/plugins.js"></script>
         <script src="js/main.js"></script>
@@ -115,5 +83,41 @@
             r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
             ga('create','UA-XXXXX-X');ga('send','pageview');
         </script>-->
+
+        <script type="text/x-handlebars" data-template-name="timelogger/index">
+            <ul id="records-list">
+                {{#each record in model.records itemController="timerecord"}}
+                <li {{bind-attr class="record.isEditing:editing" }}>
+                    {{view 'timerecord' viewmodel=record projects=model.projects}}
+                </li>
+                {{/each}}
+            </ul>
+        </script>
+
+        <script type="text/x-handlebars" data-template-name="timerecord">
+            {{#if view.viewmodel.isEditing}}
+                <span class="form-inline">
+                    {{input type="text" classNames="form-control note-field" value=view.viewmodel.notes placeholder="what did you do?"}}
+                    {{input type="time" classNames="form-control begin-field" value=view.viewmodel.begin placeholder="start time" }}
+                    {{input type="time" classNames="form-control end-field" value=view.viewmodel.end placeholder="end time"}}
+                    {{input type="date" classNames="form-control date-field" value=view.viewmodel.date placeholder="Date"}}
+                    {{view 'select' classNames="form-control project-field" value=view.viewmodel.project content=view.projects optionValuePath="content.name" optionLabelPath="content.name"}}
+                    {{#if view.viewmodel.isDraft}}
+                        <button class="btn btn-primary add-btn" {{action 'createTimeRecord'}} >Add</button>
+                    {{else}}
+                        <button class="btn btn-primary add-btn" {{action 'saveTimeRecord'}} >Update</button>
+                        <span class="cancel" {{action 'cancelUpdate'}}>cancel</span>
+                    {{/if}}
+                </span>
+            {{else}}
+                <span {{action "editTimeRecord" on="doubleClick"}}>
+                    <span class="label-notes">{{view.viewmodel.notes}}</span>
+                    <span class="label-times">{{view.viewmodel.begin}}-{{view.viewmodel.end}}</span>
+                    <span class="label-date">{{view.viewmodel.date}}</span>
+                    <span class="label-project">[{{view.viewmodel.project}}]</span>
+                    <button {{action 'cancelTimeRecord'}} class='destroy'>x</button>
+                </span>
+            {{/if}}
+        </script>
     </body>
 </html>
