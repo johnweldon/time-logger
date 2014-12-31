@@ -50,7 +50,7 @@ TimeLogger.TimeCompare = function (begin, end, increment) {
         endMin = parseInt(rhs[1], 10);
 
     if (beginMin % granularity != 0 || endMin % granularity != 0) {
-        debugLog("FAIL: time must be in increment of "+granularity+" minutes");
+        debugLog("FAIL: time must be in increment of " + granularity + " minutes");
         return false;
     }
     if (beginHour > endHour) {
@@ -65,14 +65,14 @@ TimeLogger.TimeCompare = function (begin, end, increment) {
     return true;
 };
 
-TimeLogger.TimeloggerController = Ember.Controller.extend({
+TimeLogger.TimeloggerController = Ember.ObjectController.extend({
     actions: {
         createRecord: function () {
-            var notes = this.get('newNote');
-            var begin = this.get('newBegin');
-            var end = this.get('newEnd');
             var date = this.get('newDate');
             var project = this.get('newProject') || '';
+            var begin = this.get('newBegin');
+            var end = this.get('newEnd');
+            var notes = this.get('newNotes');
 
             debugLog(date, begin, end);
 
@@ -84,15 +84,31 @@ TimeLogger.TimeloggerController = Ember.Controller.extend({
                 notes: notes,
                 begin: begin,
                 end: end,
-                project: project.trim()
+                project: project.trim(),
+                date: date
             });
 
-            this.set('newNote', '');
-            this.set('newBegin', end);
-            this.set('newEnd', end);
+            this.set('newBegin', newitem.end);
+            this.set('newEnd', newitem.end);
             record.save();
         }
-    }
+    },
+    newDate: new Date()
+});
+
+TimeLogger.RecordController = Ember.ObjectController.extend({
+    actions: {
+        editRecord: function () {
+            this.set('isEditing', true);
+        },
+        saveRecord: function () {
+            this.set('isEditing', false);
+        },
+        cancelUpdate: function(){
+            this.set('isEditing', false);
+        }
+    },
+    isEditing: false
 });
 
 TimeLogger.Record = DS.Model.extend({
@@ -119,21 +135,24 @@ TimeLogger.Record.FIXTURES = [
         begin: '10:00',
         end: '10:15',
         notes: 'what I did',
-        project: 'ember'
+        project: 'ember',
+        date: '2014-12-30'
     }, {
         id: 2,
         name: 'two',
         begin: '10:15',
         end: '11:30',
         notes: 'another one',
-        project: 'ember'
+        project: 'ember',
+        date: '2014-12-30'
     }, {
         id: 3,
         name: 'three',
         begin: '11:30',
         end: '14:00',
         notes: 'different one',
-        project: 'handlebars'
+        project: 'handlebars',
+        date: '2014-12-30'
     }
 ];
 

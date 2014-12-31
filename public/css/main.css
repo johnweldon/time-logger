@@ -106,6 +106,10 @@ input[type=month], input {
     padding: 6px 12px;
 }
 
+input[type=date] {
+    max-width: 12em;
+    min-width: 11em;
+}
 input[type=time] {
     max-width: 10em;
     min-width: 8em;
@@ -116,8 +120,35 @@ select {
     margin: 2px 0 10px 0;
 }
 
+.form-inline select.form-control {
+    vertical-align: inherit;
+    position: relative;
+    top: 1px;
+}
+
+ul#records-list {
+    padding: 0 0 0 10px;
+}
+
+ul#records-list li {
+    list-style: none;
+}
+
 .main {
     margin-top: 6em;
+}
+
+.label-notes,
+.label-times,
+.label-date,
+.label-project {
+    font-family: monospace;
+    display: inline-block;
+    margin: 0 1em;
+}
+
+.label-notes {
+    min-width: 15em;
 }
 
 /* ==========================================================================

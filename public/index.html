@@ -38,8 +38,8 @@
                 <div id="navbar" class="collapse navbar-collapse">
                     <ul class="nav navbar-nav">
                         <li class="active"><a href="#">Home</a></li>
-                        <li><a href="#about">About</a></li>
-                        <li><a href="#contact">Contact</a></li>
+                        <li><a href="#today">Today</a></li>
+                        <li><a href="#thisweek">This Week</a></li>
                     </ul>
                 </div>
             </div>
@@ -49,67 +49,39 @@
                 <h1>Time Logger</h1>
                 <p class="lead">Handy utility for tracking time</p>
                 <script type="text/x-handlebars" data-template-name="timelogger">
-                    <div class="container-fluid">
+                    <div class="container">
                         <section id="timeloggerapp">
 
-                            <div class="row">
-                                <div class="col-xs-4 col-sm-4 col-sm-offset-2 col-md-2 col-md-offset-6 form-group">
-                                    <label for="new-date">Date</label>
-                                    {{input
-                                    type="date"
-                                    id="new-date"
-                                    classNames="form-control"
-                                    value=newDate
-                                    placeholder="Date"}}
-                                </div>
-                                <div class="col-xs-6 col-sm-4 col-md-2 form-group">
-                                    <label for="new-project">Project</label>
-                                    {{view 'select'
-                                    classNames="form-control"
-                                    id="new-project"
-                                    value=newProject
-                                    content=model.projects
-                                    optionValuePath="content.id"
-                                    optionLabelPath="content.name"}}
-                                </div>
-                            </div>
-                            <div class="row">
-                            </div>
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-6 col-md-6 form-group">
-                                    {{input
-                                    type="text"
-                                    id="new-note"
-                                    classNames="form-control"
-                                    value=newNote
-                                    placeholder="what did you do?"}}
-                                </div>
-                                <div class="col-xs-8 col-sm-2 col-md-2 form-group">
-                                    {{input
-                                    type="time"
-                                    id="new-begin"
-                                    classNames="form-control"
-                                    value=newBegin
-                                    placeholder="start time" }}
-                                </div>
-                                <div class="col-xs-8 col-sm-2 col-md-2 form-group">
-                                    {{input
-                                    type="time"
-                                    id="new-end"
-                                    classNames="form-control"
-                                    value=newEnd
-                                    placeholder="end time"}}
-                                </div>
-                                <div class="col-xs-4 col-sm-2 col-md-2 ">
-                                    <button class="btn btn-primary add-btn" {{action 'createRecord'}} >Add</button>
-                                </div>
+                            <div class="form-inline">
+                                {{input type="date" id="new-date" classNames="form-control" value=newDate placeholder="Date"}}
+                                {{view 'select' classNames="form-control" id="new-project" value=newProject content=model.projects optionValuePath="content.name" optionLabelPath="content.name"}}
+                                {{input type="text" id="new-note" classNames="form-control" value=newNotes placeholder="what did you do?"}}
+                                {{input type="time" id="new-begin" classNames="form-control" value=newBegin placeholder="start time" }}
+                                {{input type="time" id="new-end" classNames="form-control" value=newEnd placeholder="end time"}}
+                                <button class="btn btn-primary add-btn" {{action 'createRecord'}} >Add</button>
                             </div>
 
-                            <h3>Records</h3>
                             <ul id="records-list">
-                                {{#each record in model.records}}
-                                <li>
-                                    <label>{{record.notes}} {{record.begin}}-{{record.end}}</label>
+                                {{#each record in model.records itemController="record"}}
+                                <li {{bind-attr class="record.isEditing:editing" }}>
+                                    {{#if record.isEditing}}
+                                    <span class="form-inline">
+                                    {{input type="text" id="edit-note" classNames="form-control" value=record.notes placeholder="what did you do?"}}
+                                    {{input type="time" id="edit-begin" classNames="form-control" value=record.begin placeholder="start time" }}
+                                    {{input type="time" id="edit-end" classNames="form-control" value=record.end placeholder="end time"}}
+                                    {{input type="date" id="edit-date" classNames="form-control" value=record.date placeholder="Date"}}
+                                    {{view 'select' id="edit-project" classNames="form-control" value=record.project content=model.projects optionValuePath="content.name" optionLabelPath="content.name"}}
+                                    <button class="btn btn-primary add-btn" {{action 'saveRecord'}} >Update</button>
+                                        <span class="cancel" {{action 'cancelUpdate'}}>cancel</span>
+                                    </span>
+                                    {{else}}
+                                    <span {{action "editRecord" on="doubleClick"}}>
+                                        <span class="label-notes">{{record.notes}}</span>
+                                        <span class="label-times">{{record.begin}}-{{record.end}}</span>
+                                        <span class="label-date">{{record.date}}</span>
+                                        <span class="label-project">[{{record.project}}]</span>
+                                    </span>
+                                    {{/if}}
                                 </li>
                                 {{/each}}
                             </ul>
