@@ -10,11 +10,13 @@ TimeLogger.Router.map(function () {
     });
 });
 
+//noinspection JSUnusedGlobalSymbols
 TimeLogger.TimeloggerRoute = Ember.Route.extend({
     model: function () {
-        this.store.find('timerecord');
-        var draft = this.store.createRecord('timerecord');
+        var self = this;
+        var draft = self.store.createRecord('timerecord');
         draft.set('isEditing', true);
+        self.store.find('timerecord');
         return {
             draft: draft,
             records: this.store.filter('timerecord', TU.allTimeRecords()),

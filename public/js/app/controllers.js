@@ -2,7 +2,6 @@
 TimeLogger.TimeloggerController = Ember.ObjectController.extend({
     actions: {
         createTimeRecord: function () {
-            TU.debugLog(this);
             var date = this.get('newDate');
             var project = this.get('newProject') || '';
             var begin = this.get('newBegin');
@@ -39,6 +38,9 @@ TimeLogger.TimeloggerController = Ember.ObjectController.extend({
 //noinspection JSUnusedGlobalSymbols
 TimeLogger.TimerecordController = Ember.ObjectController.extend({
     actions: {
+        createTimeRecord: function(item){
+            TU.debugLog('createTimeRecord',this,item);
+        },
         editTimeRecord: function () {
             this.set('isEditing', true);
         },

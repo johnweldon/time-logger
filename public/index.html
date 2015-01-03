@@ -30,7 +30,7 @@
 
 <!-- Add your site or application content here -->
 
-<script type="text/x-handlebars" data-template-name="navigation">
+<script type="text/x-handlebars" data-template-name="components/app-navigation">
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
@@ -51,12 +51,12 @@
 </script>
 
 <script type="text/x-handlebars" data-template-name="timelogger">
-    {{view 'navigation'}}
+    {{app-navigation}}
     <div class="main">
         <div class="container">
             <section id="timeloggerapp">
                 <div class="new-record form-inline">
-                    {{view 'timerecord' timerecord=model.draft projects=model.projects}}
+                    {{time-record item=model.draft projects=model.projects}}
                 </div>
                 {{outlet}}
             </section>
@@ -64,52 +64,57 @@
     </div>
 </script>
 
+<script type="text/x-handlebars" data-template-name="configuration">
+    {{app-navigation}}
+</script>
+
+
 
 <script type="text/x-handlebars" data-template-name="timelogger/index">
     <ul id="records-list">
         {{#each record in model.records itemController="timerecord"}}
-        <li>{{view 'timerecord' timerecord=record projects=model.projects}}</li>
+        <li>{{time-record item=record projects=model.projects}}</li>
         {{/each}}
     </ul>
 </script>
 
-<script type="text/x-handlebars" data-template-name="timerecord">
-    {{#if view.timerecord.isEditing }}
-    {{view 'timerecordedit' timerecord=view.timerecord projects=view.projects}}
+
+
+
+<!-- Components -->
+<script type="text/x-handlebars" data-template-name="components/time-record">
+    {{#if item.isEditing }}
+    {{time-record-edit item=item projects=projects}}
     {{else}}
-    {{view 'timerecorddisplay' timerecord=view.timerecord}}
+    {{time-record-display item=item}}
     {{/if}}
 </script>
 
-<script type="text/x-handlebars" data-template-name="timerecordedit">
+<script type="text/x-handlebars" data-template-name="components/time-record-edit">
     <span class="form-inline">
-    {{input type="text" classNames="form-control note-field" value=view.timerecord.notes placeholder="what did you do?"}}
-    {{input type="time" classNames="form-control begin-field" value=view.timerecord.begin}}
-    {{input type="time" classNames="form-control end-field" value=view.timerecord.end}}
-    {{input type="date" classNames="form-control date-field" value=view.timerecord.date}}
-    {{view 'select' classNames="form-control project-field" value=view.timerecord.project
-        content=view.projects
+    {{input type="text" classNames="form-control note-field" value=item.notes placeholder="what did you do?"}}
+    {{input type="time" classNames="form-control begin-field" value=item.begin}}
+    {{input type="time" classNames="form-control end-field" value=item.end}}
+    {{input type="date" classNames="form-control date-field" value=item.date}}
+    {{view 'select' classNames="form-control project-field" value=item.project
+        content=projects
         optionValuePath="content.name"
         optionLabelPath="content.name"}}
     </span>
-    {{#if view.timerecord.isNew}}<button class="btn btn-primary add-btn" {{action 'createTimeRecord'}} >Add</button>
+    {{#if item.isNew}}<button class="btn btn-primary add-btn" {{action 'createTimeRecord' item=item}} >Add</button>
     {{else}}<button class="btn btn-primary add-btn" {{action 'saveTimeRecord'}} >Update</button>
     <span class="cancel" {{action 'cancelUpdate'}}>cancel</span>
     {{/if}}
 </script>
 
-<script type="text/x-handlebars" data-template-name="timerecorddisplay">
+<script type="text/x-handlebars" data-template-name="components/time-record-display">
     <span {{action "editTimeRecord" on="doubleClick"}}>
-    <span class="label-notes">{{view.timerecord.notes}}</span>
-    <span class="label-times">{{view.timerecord.begin}}-{{view.timerecord.end}}</span>
-    <span class="label-date">{{view.timerecord.date}}</span>
-    <span class="label-project">[{{view.timerecord.project}}]</span>
+    <span class="label-notes">{{item.notes}}</span>
+    <span class="label-times">{{item.begin}}-{{item.end}}</span>
+    <span class="label-date">{{item.date}}</span>
+    <span class="label-project">[{{item.project}}]</span>
     </span>
     <span {{action 'cancelTimeRecord'}} class='destroy'>✕</span>
-</script>
-
-<script type="text/x-handlebars" data-template-name="configuration">
-    {{view 'navigation'}}
 </script>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
@@ -127,6 +132,7 @@
 <script src="js/app/util.js"></script>
 <script src="js/app/models.js"></script>
 <script src="js/app/controllers.js"></script>
+<script src="js/app/components.js"></script>
 <script src="js/app/views.js"></script>
 <script src="js/app/routes.js"></script>
 
